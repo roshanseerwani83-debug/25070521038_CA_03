@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Link previews reuse this title and description (vite.config.ts). Publishing adds a 1200x630 picture of the site and keeps this large card; add og:image only for a picture the owner gave, never the bare logo (it makes a small, blurry card): when the owner asks for their logo there, put it on a 1200x630 picture in the site's colors and say that is what you did. -->
+    <title>Momentum — Scroll with intention</title>
+    <meta name="description" content="A gentle digital wellbeing companion that helps you scroll with intention." />
+    <meta name="theme-color" content="#1f2716" />
+    <!-- The tab icon: the logo mark the build makes (public/logo.png, see the kit Logo). -->
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- class="dark" on <html> makes dark the default (remove it for a light one); a visitor's saved choice (src/lib/theme.ts) is applied before the page paints. -->
+    <script>
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme) document.documentElement.classList.toggle('dark', theme === 'dark');
+      } catch (e) {}
+    </script>
+    <!-- Scrollbars that take room beside the page (Windows, a Mac set to always show them) get base.css's slim bar with no arrows. -->
+    <script>
+      (function () {
+        var probe = document.createElement('div');
+        probe.style.cssText = 'position:absolute;top:-99px;width:50px;height:50px;overflow:scroll';
+        document.documentElement.appendChild(probe);
+        if (probe.offsetWidth > probe.clientWidth) document.documentElement.classList.add('classic-scrollbars');
+        probe.remove();
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

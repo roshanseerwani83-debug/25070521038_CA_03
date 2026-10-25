@@ -1,0 +1,697 @@
+/* Default look for what a page leaves unstyled (Tailwind's base layer: any class wins).
+   A field, table, switch, dialog or popover with its own class is the page's; buttons are
+   pills unless a class gives them corners. Keep the import in main.tsx after index.css. */
+@layer base {
+  /* --brand fills Button, focus glows and checkboxes; set it (and --brand-ink, text on it) to the brand.
+     The page gets its own background and text in each mode: left on the browser's canvas, a dark
+     page shows the preview frame's white behind its white text. */
+  :root {
+    color-scheme: light;
+    background-color: #ffffff;
+    color: #1d1d1f;
+    --brand: #18181b;
+    --brand-ink: #ffffff;
+    --ease-spring: linear(0, 0.0343, 0.1142, 0.2145, 0.3202, 0.4221, 0.5157, 0.5986, 0.6703, 0.7313, 0.7824, 0.8248, 0.8596, 0.8879, 0.9109, 0.9294, 0.9442, 0.956, 0.9654, 0.9729, 0.9788, 0.9834, 0.987, 0.9899, 0.9921, 0.9939, 0.9953, 0.9963, 0.9972, 0.9978, 0.9983, 0.9987, 1);
+    --ease-spring-bounce: linear(0, 0.02, 0.0714, 0.1431, 0.2267, 0.3156, 0.4048, 0.491, 0.5716, 0.6453, 0.7113, 0.7693, 0.8193, 0.8618, 0.8973, 0.9265, 0.9501, 0.9688, 0.9833, 0.9943, 1.0024, 1.008, 1.0117, 1.0139, 1.015, 1.0151, 1.0147, 1.0138, 1.0127, 1.0114, 1.01, 1.0087, 1.0074, 1.0062, 1.0051, 1.0041, 1.0033, 1.0026, 1.0019, 1.0014, 1);
+    --separator: rgb(120 120 128 / 0.22);
+    interpolate-size: allow-keywords;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    background-color: #111111;
+    color: #f5f5f7;
+    --brand: #fafafa;
+    --brand-ink: #18181b;
+  }
+
+  /* Phones: no gray flash over a tapped link or card (`a:active` below and the button press give
+     the feedback) and no text blow-up in landscape. */
+  :root {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Fills the screen, so a page that paints its body never ends above a band of the default color.
+     A long word or address wraps instead of widening the page. */
+  body {
+    min-height: 100dvh;
+    overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-optical-sizing: auto;
+  }
+
+  /* The page never pans sideways on a phone: whatever pokes past the screen's edge (a glow, a
+     wide row) is cut off there. `clip`, unlike `hidden`, leaves sticky headers and vertical scroll alone. */
+  #root {
+    overflow-x: clip;
+  }
+
+  /* Scrollbars, the page's and every scrolling box's: thin, no arrows, a quiet gray thumb on a clear track
+     that reads on any background in either mode. Left to the browser, Windows drew thick bars with arrows,
+     white ones on a page painted dark without the `dark` class. A class still wins (`[scrollbar-width:none]`). */
+  :root {
+    scrollbar-color: rgb(128 128 128 / 0.5) transparent;
+  }
+
+  * {
+    scrollbar-width: thin;
+  }
+
+  /* Chrome and Edge on Windows still draw arrow buttons on that thin bar, and use the rules below only
+     while both properties are `auto`. Where scrollbars take room beside the page (index.html then adds
+     `classic-scrollbars`), they get a rounded thumb with no arrows. Phones and Macs keep their own
+     overlay bars, Firefox the thin one above. */
+  @supports selector(::-webkit-scrollbar) {
+    .classic-scrollbars,
+    .classic-scrollbars * {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
+
+    .classic-scrollbars::-webkit-scrollbar,
+    .classic-scrollbars ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .classic-scrollbars::-webkit-scrollbar-track,
+    .classic-scrollbars ::-webkit-scrollbar-track,
+    .classic-scrollbars::-webkit-scrollbar-corner,
+    .classic-scrollbars ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    .classic-scrollbars::-webkit-scrollbar-thumb,
+    .classic-scrollbars ::-webkit-scrollbar-thumb {
+      background: rgb(128 128 128 / 0.5) padding-box;
+      border: 2px solid transparent;
+      border-radius: 999px;
+    }
+
+    .classic-scrollbars::-webkit-scrollbar-thumb:hover,
+    .classic-scrollbars ::-webkit-scrollbar-thumb:hover {
+      background-color: rgb(128 128 128 / 0.75);
+    }
+
+    /* The page's own bar sits on the page's color. Chrome draws it from body's parts, and inside an iframe
+       (Anela's preview) a clear track shows the iframe's white instead of the page. */
+    .classic-scrollbars body::-webkit-scrollbar-track,
+    .classic-scrollbars body::-webkit-scrollbar-corner {
+      background-color: #ffffff;
+    }
+
+    .classic-scrollbars.dark body::-webkit-scrollbar-track,
+    .classic-scrollbars.dark body::-webkit-scrollbar-corner {
+      background-color: #111111;
+    }
+  }
+
+  /* A grid's cells may be narrower than their content. `grid md:grid-cols-2` leaves phones one
+     implicit column that otherwise grows to its widest child: a table in `overflow-x-auto` widened
+     the column past the screen instead of scrolling, its last column cut off (dev, 2026-10-09). */
+  .grid > * {
+    min-width: 0;
+  }
+
+  /* A photo or overlay set behind its section (`-z-10` on a direct child) stays inside that section:
+     with no stacking context there it drops behind any ancestor that paints a background, unseen. */
+  :is(.relative, .absolute, .fixed, .sticky):has(> :is([class^='-z-'], [class*=' -z-'], [class*='z-[-'])) {
+    isolation: isolate;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--brand) 22%, transparent);
+  }
+
+  /* Headings: tighter tracking and leading as they grow. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  h1 {
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  /* No `text-wrap: pretty` on paragraphs: Safari on iPhone evens out every line of a paragraph
+     with it, so each line stopped well short of the screen's edge and the text sat narrow and
+     ragged against the left (production 2026-10-13, a portfolio's About section). Chrome only
+     moves the last line, which is why it looked fine on a computer. */
+
+  small {
+    letter-spacing: 0.01em;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Long code lines scroll in their own box (the page clips at its edge, see #root). */
+  pre {
+    overflow-x: auto;
+  }
+
+  /* A table without its own class: rows divided by hairlines. */
+  table:not([class]:not([class=''])) :is(th, td) {
+    padding-block: 10px;
+    text-align: start;
+    border-bottom: 1px solid var(--separator);
+  }
+
+  table:not([class]:not([class=''])) th {
+    font-weight: 600;
+  }
+
+  hr {
+    border-top-color: var(--separator);
+  }
+
+  /* An email address is one long word: it may break anywhere rather than push its row past the screen. */
+  a[href^='mailto:'] {
+    overflow-wrap: anywhere;
+  }
+
+  /* An icon beside text that wraps (an address, a long label) keeps its size. */
+  :where(svg) {
+    flex-shrink: 0;
+  }
+
+  a {
+    text-underline-offset: 0.18em;
+    transition: color 200ms ease, opacity 200ms ease;
+  }
+
+  a:active {
+    opacity: 0.7;
+    transition-duration: 100ms;
+  }
+
+  /* Buttons: pills unless a class gives corners or they hold 3+ elements (a row or card); a press and a spring. */
+  button:not(:has(> :nth-child(3))) {
+    border-radius: 9999px;
+  }
+
+  /* A held finger does not select a button's label. */
+  button,
+  [role='button'] {
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    transition:
+      color 200ms ease,
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      opacity 200ms ease,
+      filter 200ms ease,
+      translate 580ms var(--ease-spring),
+      scale 580ms var(--ease-spring);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* `scale` composes with any transform or translate the button already has. */
+  button:not(:disabled):active,
+  [role='button']:not(:disabled):active {
+    scale: 0.97;
+    transition-duration: 100ms;
+    transition-timing-function: ease-out;
+  }
+
+  /* A field that does not draw its own box (no border, background, shadow or ring class, no field class of the site's
+     own): rounded, 44px, 16px text (phones do not zoom). White with a hairline in light mode, softly filled in dark: a
+     gray fill on a light card read as a disabled field (2026-10-18). A field with only size or spacing classes
+     (`h-12 w-full`, `rounded-xl px-4`) gets it too, its own classes still winning: guarded on any class, a delivery
+     app's search box had no box at all (2026-10-21). One styled to sit inside its own bar (`bg-transparent`) stays as
+     written. */
+  :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file'], [type='submit'], [type='button'], [type='reset'], [type='image'], [type='hidden']), select, textarea):not([class*='border'], [class*='bg-'], [class*='shadow'], [class^='ring-'], [class*=' ring-'], [class*='field'], [class*='input']) {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 16px;
+    line-height: 1.4;
+    border: 1px solid rgb(120 120 128 / 0.28);
+    border-radius: 12px;
+    background-color: #ffffff;
+    /* Its own words: inherited white on a photo or a dark band would be white on white (review B2). */
+    color: #1d1d1f;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+
+    :root.dark & {
+      background-color: rgb(120 120 128 / 0.08);
+      color: inherit;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: color-mix(in oklab, var(--brand) 70%, transparent);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 18%, transparent);
+    }
+
+    &::placeholder {
+      color: rgb(120 120 128 / 0.9);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+
+    &:is(textarea) {
+      padding-block: 12px;
+      resize: vertical;
+    }
+
+    &:is(select):not([multiple]) {
+      appearance: none;
+      padding-right: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+  }
+
+  /* Date and time fields, with or without a class: iPhone Safari draws them at its own minimum
+     width and adds the padding outside `w-full`, so a "Pickup date" box ran off the screen's
+     edge (dev, 2026-10-12). Without the native look they take the width they are given; a tap
+     still opens the iPhone's picker. The value line keeps its height while empty and starts
+     on the left like the other fields. */
+  input:is([type='date'], [type='time'], [type='datetime-local'], [type='month'], [type='week']) {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+
+    &::-webkit-date-and-time-value {
+      min-height: 1.5em;
+      text-align: start;
+    }
+  }
+
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='range'],
+  progress {
+    accent-color: var(--brand);
+  }
+
+  /* <input type="checkbox" role="switch"> without its own class is the iOS switch. */
+  input[type='checkbox'][role='switch']:not([class]:not([class=''])) {
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 51px;
+    height: 31px;
+    border-radius: 9999px;
+    background-color: rgb(120 120 128 / 0.32);
+    cursor: pointer;
+    transition: background-color 200ms ease;
+  }
+
+  input[type='checkbox'][role='switch']:not([class]:not([class='']))::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    border-radius: 9999px;
+    background: #fff;
+    box-shadow: 0 3px 8px rgb(0 0 0 / 0.15), 0 3px 1px rgb(0 0 0 / 0.06);
+    transition: translate 540ms var(--ease-spring-bounce);
+  }
+
+  input[type='checkbox'][role='switch']:not([class]:not([class=''])):checked {
+    background-color: #34c759;
+  }
+
+  input[type='checkbox'][role='switch']:not([class]:not([class=''])):checked::before {
+    translate: 20px 0;
+  }
+
+  /* Dialogs and popovers: centered, fade and scale in on a spring with no overshoot (something that just opened
+     does not bounce); the card look only without a class. */
+  dialog {
+    margin: auto;
+    color: inherit;
+    opacity: 0;
+    scale: 0.96;
+    filter: blur(4px);
+    transition:
+      opacity 200ms ease,
+      scale 540ms var(--ease-spring),
+      filter 220ms ease,
+      visibility 220ms,
+      overlay 220ms allow-discrete,
+      display 220ms allow-discrete;
+  }
+
+  /* Closed is never an invisible layer that takes clicks, even when a class shows it (`flex` instead of `open:flex`). */
+  dialog:not([open]),
+  [popover]:not(:popover-open) {
+    visibility: hidden;
+  }
+
+  dialog[open] {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+  }
+
+  dialog:not([class]:not([class=''])) {
+    max-width: min(560px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    padding: 24px;
+    border-radius: 22px;
+    background-color: Canvas;
+    box-shadow: 0 24px 64px rgb(0 0 0 / 0.22);
+  }
+
+  dialog::backdrop {
+    background-color: rgb(0 0 0 / 0);
+    transition:
+      background-color 220ms ease,
+      backdrop-filter 220ms ease,
+      overlay 220ms allow-discrete,
+      display 220ms allow-discrete;
+  }
+
+  dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0.4);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+
+  [popover] {
+    margin: auto;
+    color: inherit;
+    opacity: 0;
+    scale: 0.96;
+    filter: blur(4px);
+    transition:
+      opacity 180ms ease,
+      scale 580ms var(--ease-spring),
+      filter 200ms ease,
+      visibility 200ms,
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+
+  [popover]:popover-open {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+  }
+
+  [popover]:not([class]:not([class=''])) {
+    padding: 12px 14px;
+    border-radius: 16px;
+    background-color: Canvas;
+    box-shadow: 0 12px 40px rgb(0 0 0 / 0.16);
+  }
+
+  /* Disclosures open and close smoothly. */
+  details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 580ms var(--ease-spring),
+      content-visibility 580ms allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+
+  /* Menus, popovers and tooltips (radix-ui) grow from the control that opened them and leave the way they came. */
+  [data-radix-popper-content-wrapper] > [data-state] {
+    transform-origin: var(--radix-popper-transform-origin);
+  }
+
+  [data-radix-popper-content-wrapper] > [data-state='open'],
+  [data-radix-popper-content-wrapper] > [data-state='delayed-open'],
+  [data-radix-popper-content-wrapper] > [data-state='instant-open'],
+  [role='dialog'][data-state='open'] {
+    animation: wb-materialize 580ms var(--ease-spring);
+  }
+
+  [data-radix-popper-content-wrapper] > [data-state='closed'],
+  [role='dialog'][data-state='closed'] {
+    animation: wb-dematerialize 140ms ease-out forwards;
+  }
+
+  /* A dialog the page placed nowhere (a radix dialog `fixed` with no inset) opens where the page ends, off a phone's
+     screen: a ticket site's confirmations opened 5,800 px down (production 2026-10-22). One with no top, side or inset
+     of its own sits in the middle of the screen; the page's own width and look stand. A popover's content, which its
+     wrapper places, is left alone. */
+  :is([role='dialog'], [role='alertdialog'])[data-state='open']:not(
+      [data-radix-popper-content-wrapper] > *,
+      [class*='inset-'],
+      [class*='top-'],
+      [class*='bottom-'],
+      [class*='left-'],
+      [class*='right-'],
+      [style*='top'],
+      [style*='inset']
+    ) {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    margin: auto;
+    width: min(32rem, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+    height: fit-content;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+  }
+
+  /* Where a dialog or popover starts when it opens. */
+  @starting-style {
+    dialog[open],
+    [popover]:popover-open {
+      opacity: 0;
+      scale: 0.96;
+      filter: blur(4px);
+    }
+
+    dialog[open]::backdrop {
+      background-color: rgb(0 0 0 / 0);
+      -webkit-backdrop-filter: blur(0);
+      backdrop-filter: blur(0);
+    }
+  }
+}
+
+@keyframes wb-materialize {
+  from {
+    opacity: 0;
+    scale: 0.96;
+    filter: blur(4px);
+  }
+}
+
+@keyframes wb-dematerialize {
+  to {
+    opacity: 0;
+    scale: 0.96;
+    filter: blur(4px);
+  }
+}
+
+@layer components {
+  /* Opt-in glass: `.glass` for light text over photos or dark pages, `.glass-light` for dark text over light
+     ones (it turns to dark glass in dark mode). */
+  .glass {
+    color: #fff;
+    background-color: rgb(0 0 0 / 0.37);
+    -webkit-backdrop-filter: blur(2.5px) contrast(0.7) saturate(1.1);
+    backdrop-filter: blur(2.5px) contrast(0.7) saturate(1.1);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.08),
+      inset 0 0 14px rgb(255 255 255 / 0.04),
+      0 12px 32px -10px rgb(0 0 0 / 0.7),
+      0 2px 5px rgb(0 0 0 / 0.35);
+  }
+
+  .glass-light {
+    color: #191813;
+    background-color: rgb(255 255 255 / 0.56);
+    -webkit-backdrop-filter: blur(3px) saturate(1.8);
+    backdrop-filter: blur(3px) saturate(1.8);
+    box-shadow:
+      inset 0 0 0 1px rgb(25 24 19 / 0.055),
+      inset 0 1px 0 rgb(255 255 255),
+      inset 0 0 12px rgb(255 255 255 / 0.55),
+      0 18px 38px -18px rgb(60 40 25 / 0.38);
+  }
+
+  /* In dark mode the light glass follows the page: dark glass, light text. */
+  :root.dark .glass-light {
+    color: #ffffff;
+    background-color: rgb(28 28 30 / 0.56);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.06),
+      0 18px 38px -18px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* Motion that arrives (emil-design-eng): a strong ease-out and the first screen's words rising on load. Nothing
+   below the first screen animates in as it scrolls into view: cards that rose into place the first time down read
+   as the page still arriving (owner, 2026-10-19: "i like it when i scroll down and everything is there already"). */
+:root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer components {
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      translate: 0 16px;
+    }
+  }
+  .hero-words > * {
+    animation: rise-in 800ms var(--ease-out-strong) both;
+  }
+  .hero-words > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .hero-words > :nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .hero-words > :nth-child(n + 4) {
+    animation-delay: 240ms;
+  }
+}
+
+/* Light mode's header is clear liquid glass, never milky white, with dark mode's light 3 px blur (owner, 2026-10-19:
+   "like dark mode", then "too blurred, more see through"). Its words are
+   dark over a light part of the page and white over a photo or a dark one: GlassBar reads what is under it and sets
+   data-over="dark". In dark mode it is .glass-light's dark glass. */
+@layer components {
+  /* A quick switch as it crosses into a photo (owner, 2026-10-19: 300 ms read as slow, "needs to be more snappy"). */
+  .glass-clear {
+    transition:
+      background-color 150ms var(--ease-out-strong),
+      color 120ms var(--ease-out-strong),
+      box-shadow 150ms var(--ease-out-strong);
+  }
+  :root:not(.dark) .glass-clear {
+    color: #191813;
+    background-color: rgb(255 255 255 / 0.1);
+    -webkit-backdrop-filter: blur(3px) saturate(1.8);
+    backdrop-filter: blur(3px) saturate(1.8);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.7),
+      inset 0 0 0 1px rgb(25 24 19 / 0.07),
+      0 12px 32px -16px rgb(0 0 0 / 0.3);
+  }
+  :root:not(.dark) .glass-clear[data-over='dark'] {
+    color: #ffffff;
+    background-color: rgb(255 255 255 / 0.08);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      inset 0 0 0 1px rgb(255 255 255 / 0.16),
+      0 12px 32px -14px rgb(0 0 0 / 0.55);
+  }
+}
+
+/* A section's label and its link onward (src/components/ui/section-head.tsx) wear the brand color on the page. On a
+   photo or a dark band (white words) the label is soft white, and in light mode the link's brand is lifted toward
+   white so a dark brand still reads there, as the glass cards' titles are. */
+@layer components {
+  .section-label,
+  .section-link {
+    color: var(--brand);
+  }
+  .text-white .section-label {
+    color: rgb(255 255 255 / 0.8);
+  }
+  :root:not(.dark) .text-white .section-link {
+    color: color-mix(in oklab, var(--brand) 60%, white);
+  }
+}
+
+/* A message box is never a full pill. A build gave every field a pill class and reused it on its message box with
+   a second corner size, and the pill won: a four-line box drew as one big oval (production, 2026-10-21). It keeps
+   large rounded corners instead. Outside every layer, so it holds over the page's own classes; any other shape a
+   field is given stands, so a site that asks for pill fields still gets them. */
+textarea[class*='rounded-full'] {
+  border-radius: 24px;
+}
+
+/* A card's contents, whatever they are, sit an even step apart: titles, words, buttons, fields, lists, pictures
+   (owner, 2026-10-21). In the components layer, so an item's own margin (`mt-2`, `mt-auto`) always wins. */
+@layer components {
+  /* A badge pinned to a corner (`absolute`) or a screen-reader line keeps its place. */
+  .card-flow > * + *:not(.absolute, .fixed, .sr-only) {
+    margin-top: 0.75rem;
+  }
+
+  /* A card beside a group of cards (a grid inside the grid) keeps its own height: stretched to the group's it stood
+     half empty, a short summary beside four bookings (dev, 2026-10-21). Cards side by side in one row still match,
+     a card laid out as a grid included (it is a card, not a group). */
+  .grid > [data-card]:has(~ .grid:not([data-card])),
+  .grid > .grid:not([data-card]) ~ [data-card] {
+    align-self: start;
+  }
+}
+
+/* A box that scrolls keeps everything inside it. A hidden label (`sr-only`, positioned absolutely) in a wide table's
+   header escaped its sideways-scrolling box and made the whole page scroll sideways on a phone (dev, 2026-10-21, an
+   admin panel's users table). Zero specificity in the base layer, so a box the page positions itself keeps that. */
+@layer base {
+  :where(.overflow-auto, .overflow-scroll, .overflow-x-auto, .overflow-x-scroll, .overflow-y-auto, .overflow-y-scroll) {
+    position: relative;
+  }
+}
+
+/* On a phone a wide photo across a card's top is a banner at most 176 px tall, so a few cards show on a screen
+   (owner, 2026-10-21: "the smaller cards on mobile look better"). A square or tall photo (a product, an album
+   cover, a portrait) keeps its whole shape: cut to a banner it lost what it shows. Components layer, so a photo's
+   own `max-h-*` wins. */
+@layer components {
+  @media (width < 40rem) {
+    .card-media
+      img:not(
+        .aspect-square,
+        [class*='aspect-[3/4]'],
+        [class*='aspect-[4/5]'],
+        [class*='aspect-[2/3]'],
+        [class*='aspect-[9/16]'],
+        [class*='aspect-[1/1]']
+      ) {
+      max-height: 11rem;
+    }
+  }
+}
+
+/* Two cards to a row on a phone (owner, 2026-10-22: products and figures sit two to a row there): a card's words
+   get 16 px around them instead of 24, so a name, a price and a button fit in half the screen. Only where the card
+   still has the kit's own padding (`p-6`, on a card with no photo or on the words under one); unlayered, as it must
+   win over that utility, and below 640 px only, so tablets and computers keep theirs. */
+@media (width < 40rem) {
+  .grid-cols-2 > [data-card].p-6,
+  .grid-cols-2 > [data-card] > .card-flow.p-6 {
+    padding: 1rem;
+  }
+}

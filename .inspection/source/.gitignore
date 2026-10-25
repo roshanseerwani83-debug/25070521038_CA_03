@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.local
+# Also ignore the agent-home symlink; trailing-slash patterns match directories only.
+.wb/
+.wb-checkpoint-control/
+.wb-checkpoint-staging/
+.vite/
+.turbo/
+.pnpm-store/
