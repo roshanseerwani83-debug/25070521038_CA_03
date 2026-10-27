@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Roshan S",
+    "rollNo": "BT23CSE042",
+    "email": "roshan@iiitn.ac.in",
+    "category": "Lab Assistance",
+    "subject": "Operating Systems",
+    "message": "Need clarification on question 3.",
+    "status": "Pending",
+    "createdAt": "2026-10-27T08:39:45.663Z",
+    "_id": "6ae06351ae3299ac2e100523"
+  },
+  {
+    "_id": "671e02b2c3d4e5f600000001",
+    "name": "Roshan Sharma",
+    "rollNo": "BT23CSE042",
+    "email": "roshan.sharma@iiitn.ac.in",
+    "category": "Course Query",
+    "subject": "Flexi-Credit CA3 Submission Clarification",
+    "message": "Respected Sir, submitting the completed full-stack academic project for CA3 flexi-credit evaluation. All modules including dashboard, tasks, MongoDB compass compatibility, and messages are operational.",
+    "status": "Reviewed",
+    "createdAt": "2026-10-26T08:30:31.666Z"
+  }
+]

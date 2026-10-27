@@ -1,0 +1,157 @@
+[
+  {
+    "title": "Operating Systems Lab 4 Submission",
+    "subject": "Operating Systems",
+    "courseCode": "GEN101",
+    "type": "Assignment",
+    "priority": "High",
+    "dueDate": "2026-11-01",
+    "dueTime": "23:59",
+    "estimatedHours": 2,
+    "progress": 0,
+    "notes": "",
+    "subtasks": [],
+    "done": false,
+    "createdAt": "2026-10-27T08:39:45.657Z",
+    "updatedAt": "2026-10-27T08:39:45.657Z",
+    "_id": "6ae06351ae3299ac2e100522"
+  },
+  {
+    "_id": "671e01a1b2c3d4e5f6000001",
+    "title": "Implement Dijkstra's Algorithm in C++",
+    "subject": "Data Structures & Algorithms",
+    "courseCode": "CS201",
+    "type": "Lab Report",
+    "priority": "High",
+    "dueDate": "2026-10-29",
+    "dueTime": "23:59",
+    "estimatedHours": 4,
+    "progress": 75,
+    "notes": "Implement adjacency list representation and min-heap priority queue. Submit PDF report with time complexity analysis and screenshots.",
+    "subtasks": [
+      {
+        "id": "1",
+        "title": "Write graph adjacency list class",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Implement min-heap priority queue",
+        "completed": true
+      },
+      {
+        "id": "3",
+        "title": "Run benchmark on 10,000 vertices",
+        "completed": true
+      },
+      {
+        "id": "4",
+        "title": "Write observation report and complexity analysis",
+        "completed": false
+      }
+    ],
+    "done": false,
+    "createdAt": "2026-10-24T08:30:31.664Z"
+  },
+  {
+    "_id": "671e01a1b2c3d4e5f6000002",
+    "title": "Flexi-Credit CA3 Project: MERN Academic Workspace",
+    "subject": "Full-Stack Web Dev (Flexi Credit)",
+    "courseCode": "CA3-FC",
+    "type": "Project Milestone",
+    "priority": "Urgent",
+    "dueDate": "2026-10-27",
+    "dueTime": "17:00",
+    "estimatedHours": 8,
+    "progress": 90,
+    "notes": "Develop full-stack React + Node.js + MongoDB coursework planner with responsive dashboard, task management, helpdesk messaging, and viva documentation.",
+    "subtasks": [
+      {
+        "id": "1",
+        "title": "Design REST API endpoints with Express",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Build React frontend with dashboard metrics",
+        "completed": true
+      },
+      {
+        "id": "3",
+        "title": "Configure MongoDB Compass connectivity",
+        "completed": true
+      },
+      {
+        "id": "4",
+        "title": "Prepare viva defense cheat sheet",
+        "completed": false
+      }
+    ],
+    "done": false,
+    "createdAt": "2026-10-22T08:30:31.664Z"
+  },
+  {
+    "_id": "671e01a1b2c3d4e5f6000003",
+    "title": "Operating Systems: Process Synchronization Semaphores",
+    "subject": "Operating Systems",
+    "courseCode": "CS301",
+    "type": "Assignment",
+    "priority": "Medium",
+    "dueDate": "2026-11-01",
+    "dueTime": "14:00",
+    "estimatedHours": 3,
+    "progress": 100,
+    "notes": "Solve the Producer-Consumer and Dining Philosophers problems using POSIX semaphores in Linux.",
+    "subtasks": [
+      {
+        "id": "1",
+        "title": "Review textbook chapter 6 (Silberschatz)",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Code producer_consumer.c with sem_wait/sem_post",
+        "completed": true
+      },
+      {
+        "id": "3",
+        "title": "Verify deadlock-free execution",
+        "completed": true
+      }
+    ],
+    "done": true,
+    "createdAt": "2026-10-20T08:30:31.664Z"
+  },
+  {
+    "_id": "671e01a1b2c3d4e5f6000004",
+    "title": "Computer Networks: Wireshark Packet Analysis Lab",
+    "subject": "Computer Networks",
+    "courseCode": "CS302",
+    "type": "Lab Report",
+    "priority": "Medium",
+    "dueDate": "2026-11-03",
+    "dueTime": "20:00",
+    "estimatedHours": 2,
+    "progress": 30,
+    "notes": "Capture HTTP 3-way handshake and DNS query packets. Identify SEQ/ACK numbers and TCP window sizes.",
+    "subtasks": [
+      {
+        "id": "1",
+        "title": "Capture TCP packets via Wireshark",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Extract SYN, SYN-ACK, ACK packet headers",
+        "completed": false
+      },
+      {
+        "id": "3",
+        "title": "Complete lab observation sheet",
+        "completed": false
+      }
+    ],
+    "done": false,
+    "createdAt": "2026-10-25T08:30:31.664Z"
+  }
+]
