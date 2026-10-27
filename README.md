@@ -27,7 +27,7 @@
 ## 🏗️ Project Architecture
 
 ```
-IIIT NAGPUR/
+campuspulse/
 ├── client/                     # Frontend Application (React 18 + Vite)
 │   ├── index.html              # HTML5 entry with Plus Jakarta Sans & JetBrains Mono
 │   ├── package.json            # React, React-Router-DOM, Lucide Icons, Canvas-Confetti

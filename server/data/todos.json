@@ -1,5 +1,38 @@
 [
   {
+    "userId": "6ae07be1dc42cd3c676cc546",
+    "title": "Setup SIT Nagpur Semester 5 Coursework",
+    "subject": "Full-Stack Web Dev (Flexi Credit)",
+    "courseCode": "SIT-CA3",
+    "type": "Project Milestone",
+    "priority": "High",
+    "dueDate": "2026-10-30",
+    "dueTime": "18:00",
+    "estimatedHours": 2,
+    "progress": 50,
+    "notes": "Welcome to CampusPulse at SIT Nagpur! Explore the coursework manager and submit lab deliverables.",
+    "subtasks": [
+      {
+        "id": "1",
+        "title": "Complete profile registration",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Review Continuous Assessment CA3 syllabus",
+        "completed": false
+      },
+      {
+        "id": "3",
+        "title": "Connect MongoDB Compass database",
+        "completed": false
+      }
+    ],
+    "done": false,
+    "createdAt": "2026-10-27T10:24:33.699Z",
+    "_id": "6ae07be1dc42cd3c676cc547"
+  },
+  {
     "userId": "6ae07ac1fc6f17cc733a2324",
     "title": "Setup SIT Nagpur Semester 5 Coursework",
     "subject": "Full-Stack Web Dev (Flexi Credit)",

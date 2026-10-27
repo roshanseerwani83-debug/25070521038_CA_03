@@ -20,5 +20,16 @@
     "college": "Symbiosis Institute of Technology (SIT), Nagpur",
     "createdAt": "2026-10-27T10:19:45.676Z",
     "_id": "6ae07ac1fc6f17cc733a2324"
+  },
+  {
+    "name": "Roshan",
+    "prn": "25070521038",
+    "email": "roshan.seerwani.batch2025@sitnagpur.siu.edu.in",
+    "password": "123456",
+    "branch": "Computer Science & Engineering",
+    "year": "3rd Year (Semester 5)",
+    "college": "Symbiosis Institute of Technology (SIT), Nagpur",
+    "createdAt": "2026-10-27T10:24:33.696Z",
+    "_id": "6ae07be1dc42cd3c676cc546"
   }
 ]
