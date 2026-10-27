@@ -12,7 +12,9 @@ import {
   BookOpen, 
   CheckCircle2, 
   Sparkles,
-  Filter
+  Filter,
+  User,
+  LogIn
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import API from './api';
@@ -27,7 +29,7 @@ const DEFAULT_SUBJECTS = [
   "Mathematics / Discrete Structures"
 ];
 
-const Tasks = () => {
+const Tasks = ({ currentUser, onOpenAuth }) => {
   const [todos, setTodos] = useState([]);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
 
@@ -50,9 +52,10 @@ const Tasks = () => {
 
   const loadTodos = async () => {
     try {
-      const res = await fetch(`${API}/getall`);
+      const userId = currentUser?._id || '';
+      const res = await fetch(`${API}/getall?userId=${userId}`);
       const data = await res.json();
-      setTodos(data);
+      setTodos(data || []);
     } catch (err) {
       console.error('Failed to load todos:', err);
     }
@@ -60,7 +63,7 @@ const Tasks = () => {
 
   useEffect(() => {
     loadTodos();
-  }, []);
+  }, [currentUser]);
 
   const handleAddTodo = async (e) => {
     e.preventDefault();
@@ -71,6 +74,7 @@ const Tasks = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: currentUser?._id || '',
           title,
           subject,
           type,
@@ -82,7 +86,7 @@ const Tasks = () => {
           subtasks: [
             { id: '1', title: 'Review problem statement & guidelines', completed: false },
             { id: '2', title: 'Implement solution & test cases', completed: false },
-            { id: '3', title: 'Final submission to portal', completed: false }
+            { id: '3', title: 'Final submission to SIT portal', completed: false }
           ]
         })
       });
@@ -121,7 +125,6 @@ const Tasks = () => {
       });
       loadTodos();
     } catch (err) {
-      // Fallback to friend's update route
       await fetch(`${API}/update/${todo._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -180,9 +183,14 @@ const Tasks = () => {
     <div className="page-wrapper">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Coursework & Assignments</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <h1 className="page-title">SIT Coursework & Tasks</h1>
+            {currentUser?.prn && (
+              <span className="brand-tag">PRN: {currentUser.prn}</span>
+            )}
+          </div>
           <p className="page-subtitle">
-            {pendingCount} item{pendingCount !== 1 ? 's' : ''} requiring attention · Total {todos.length} registered
+            {pendingCount} item{pendingCount !== 1 ? 's' : ''} requiring attention · Total {todos.length} registered for Symbiosis Institute of Technology
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -218,7 +226,7 @@ const Tasks = () => {
       {isAdding && (
         <div className="card" style={{ marginBottom: '24px', border: '2px solid var(--primary)' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', color: 'var(--primary)' }}>
-            Register New Academic Coursework
+            Register New Academic Coursework (SIT Nagpur)
           </h3>
           <form onSubmit={handleAddTodo}>
             <div className="form-grid">
@@ -278,7 +286,7 @@ const Tasks = () => {
                   rows={3} 
                   value={notes} 
                   onChange={(e) => setNotes(e.target.value)} 
-                  placeholder="Mention instructions, formatting guidelines, code links, or rubric details..."
+                  placeholder="Mention instructions, formatting guidelines, code links, or rubric details for SIT evaluation..."
                 />
               </div>
             </div>

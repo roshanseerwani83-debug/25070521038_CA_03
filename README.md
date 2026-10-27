@@ -1,7 +1,7 @@
 # 🎓 CampusPulse — Academic & Coursework Workspace
 
 > **Continuous Assessment 3 (CA3) — Flexi-Credit Full-Stack Web Development Project**  
-> **Institution:** Indian Institute of Information Technology, Nagpur (IIITN)  
+> **Institution:** Symbiosis Institute of Technology (SIT), Nagpur  
 > **Tech Stack:** JavaScript (React + Vite, Node.js + Express, MongoDB Compass) · HTML5 · Modern CSS
 
 ---
@@ -139,4 +139,4 @@ When presenting to evaluators:
 ## 👤 Submission Details
 
 * **Project:** Continuous Assessment 3 (CA3) — Flexi-Credit Full-Stack Web Development
-* **Institution:** Indian Institute of Information Technology, Nagpur (IIITN)
+* **Institution:** Symbiosis Institute of Technology (SIT), Nagpur

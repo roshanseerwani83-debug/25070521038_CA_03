@@ -19,6 +19,7 @@ if (!fs.existsSync(dataDir)) {
 
 const todosFilePath = path.join(dataDir, 'todos.json');
 const messagesFilePath = path.join(dataDir, 'messages.json');
+const usersFilePath = path.join(dataDir, 'users.json');
 
 // Helper functions for fallback local file storage
 function readLocalFile(filePath, defaultData = []) {
@@ -43,10 +44,26 @@ function writeLocalFile(filePath, data) {
   }
 }
 
-// Default initial coursework sample data
+// Initial default user for SIT Nagpur
+const defaultUsers = [
+  {
+    _id: "671e00a1b2c3d4e5f6000099",
+    name: "Roshan Sharma",
+    prn: "23070123001",
+    email: "roshan@sitnagpur.siu.edu.in",
+    password: "password123",
+    branch: "Computer Science & Engineering",
+    year: "3rd Year (Semester 5)",
+    college: "Symbiosis Institute of Technology (SIT), Nagpur",
+    createdAt: new Date()
+  }
+];
+
+// Initial SIT Nagpur Coursework Sample Data
 const initialAcademicTodos = [
   {
     _id: "671e01a1b2c3d4e5f6000001",
+    userId: "671e00a1b2c3d4e5f6000099",
     title: "Implement Dijkstra's Algorithm in C++",
     subject: "Data Structures & Algorithms",
     courseCode: "CS201",
@@ -68,6 +85,7 @@ const initialAcademicTodos = [
   },
   {
     _id: "671e01a1b2c3d4e5f6000002",
+    userId: "671e00a1b2c3d4e5f6000099",
     title: "Flexi-Credit CA3 Project: MERN Academic Workspace",
     subject: "Full-Stack Web Dev (Flexi Credit)",
     courseCode: "CA3-FC",
@@ -77,18 +95,19 @@ const initialAcademicTodos = [
     dueTime: "17:00",
     estimatedHours: 8,
     progress: 90,
-    notes: "Develop full-stack React + Node.js + MongoDB coursework planner with responsive dashboard, task management, helpdesk messaging, and viva documentation.",
+    notes: "Develop full-stack React + Node.js + MongoDB coursework planner for SIT Nagpur CA3 submission with authentication, responsive dashboard, task management, helpdesk messaging, and viva documentation.",
     subtasks: [
       { id: "1", title: "Design REST API endpoints with Express", completed: true },
-      { id: "2", title: "Build React frontend with dashboard metrics", completed: true },
-      { id: "3", title: "Configure MongoDB Compass connectivity", completed: true },
-      { id: "4", title: "Prepare viva defense cheat sheet", completed: false }
+      { id: "2", title: "Implement Student Sign-Up & Sign-In Auth", completed: true },
+      { id: "3", title: "Build React frontend with dashboard metrics", completed: true },
+      { id: "4", title: "Configure MongoDB Compass connectivity", completed: true }
     ],
     done: false,
     createdAt: new Date(Date.now() - 86400000 * 5)
   },
   {
     _id: "671e01a1b2c3d4e5f6000003",
+    userId: "671e00a1b2c3d4e5f6000099",
     title: "Operating Systems: Process Synchronization Semaphores",
     subject: "Operating Systems",
     courseCode: "CS301",
@@ -109,6 +128,7 @@ const initialAcademicTodos = [
   },
   {
     _id: "671e01a1b2c3d4e5f6000004",
+    userId: "671e00a1b2c3d4e5f6000099",
     title: "Computer Networks: Wireshark Packet Analysis Lab",
     subject: "Computer Networks",
     courseCode: "CS302",
@@ -129,20 +149,23 @@ const initialAcademicTodos = [
   }
 ];
 
-// Initialize fallback files if empty
+// Initialize fallback files
 if (!fs.existsSync(todosFilePath)) {
   writeLocalFile(todosFilePath, initialAcademicTodos);
+}
+if (!fs.existsSync(usersFilePath)) {
+  writeLocalFile(usersFilePath, defaultUsers);
 }
 if (!fs.existsSync(messagesFilePath)) {
   writeLocalFile(messagesFilePath, [
     {
       _id: "671e02b2c3d4e5f600000001",
       name: "Roshan Sharma",
-      rollNo: "BT23CSE042",
-      email: "roshan.sharma@iiitn.ac.in",
+      rollNo: "23070123001",
+      email: "roshan@sitnagpur.siu.edu.in",
       category: "Course Query",
       subject: "Flexi-Credit CA3 Submission Clarification",
-      message: "Respected Sir, submitting the completed full-stack academic project for CA3 flexi-credit evaluation. All modules including dashboard, tasks, MongoDB compass compatibility, and messages are operational.",
+      message: "Respected Faculty, submitting the completed full-stack academic project for SIT Nagpur CA3 flexi-credit evaluation. All modules including student authentication, dashboard, tasks, MongoDB compass compatibility, and messages are operational.",
       status: "Reviewed",
       createdAt: new Date(Date.now() - 86400000)
     }
@@ -168,6 +191,12 @@ async function initDatabase() {
       isMongoConnected = true;
       console.log(`>>> MongoDB Compass connection established successfully to database: "${dbName}"`);
       
+      // Seed default users if empty
+      const userCount = await db.collection("users").countDocuments();
+      if (userCount === 0) {
+        await db.collection("users").insertMany(defaultUsers);
+      }
+
       // Seed initial todos if collection is empty
       const count = await db.collection("todos").countDocuments();
       if (count === 0) {
@@ -176,7 +205,7 @@ async function initDatabase() {
       }
     } catch (err) {
       console.warn(`[Notice] Could not connect to MongoDB at "${mongoUri}": ${err.message}`);
-      console.warn(`[Fallback] Running with local persistent JSON database. Once MongoDB Compass is open, restart or update .env.`);
+      console.warn(`[Fallback] Running with local persistent JSON database.`);
       isMongoConnected = false;
     }
   } else {
@@ -191,6 +220,7 @@ async function initDatabase() {
 app.get('/api/status', (req, res) => {
   res.json({
     status: "ok",
+    college: "Symbiosis Institute of Technology (SIT), Nagpur",
     storageMode: isMongoConnected ? "mongodb" : "local_store",
     isMongoConnected,
     mongoUri: mongoUri || "Not set (empty)",
@@ -200,19 +230,206 @@ app.get('/api/status', (req, res) => {
 });
 
 // -------------------------------------------------------------
+// Student Authentication Routes (Register, Login, Me)
+// -------------------------------------------------------------
+
+// POST /api/auth/register
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, prn, email, password, branch, year } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Name, email, and password are required" });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPrn = (prn || "").trim();
+
+    let existingUser = null;
+    if (isMongoConnected && db) {
+      existingUser = await db.collection("users").findOne({
+        $or: [{ email: cleanEmail }, ...(cleanPrn ? [{ prn: cleanPrn }] : [])]
+      });
+    } else {
+      const users = readLocalFile(usersFilePath, defaultUsers);
+      existingUser = users.find(u => u.email.toLowerCase() === cleanEmail || (cleanPrn && u.prn === cleanPrn));
+    }
+
+    if (existingUser) {
+      return res.status(400).json({ error: "A student with this Email or PRN is already registered" });
+    }
+
+    const newUser = {
+      name: name.trim(),
+      prn: cleanPrn || `PRN${Date.now().toString().slice(-6)}`,
+      email: cleanEmail,
+      password: password, // In production, hash with bcrypt
+      branch: branch || "Computer Science & Engineering",
+      year: year || "3rd Year",
+      college: "Symbiosis Institute of Technology (SIT), Nagpur",
+      createdAt: new Date()
+    };
+
+    let savedUserId;
+    if (isMongoConnected && db) {
+      const result = await db.collection("users").insertOne(newUser);
+      savedUserId = result.insertedId.toString();
+    } else {
+      const users = readLocalFile(usersFilePath, defaultUsers);
+      savedUserId = new ObjectId().toString();
+      users.push({ ...newUser, _id: savedUserId });
+      writeLocalFile(usersFilePath, users);
+    }
+
+    // Auto-seed starter tasks for the new student
+    const starterTasks = [
+      {
+        userId: savedUserId,
+        title: "Setup SIT Nagpur Semester 5 Coursework",
+        subject: "Full-Stack Web Dev (Flexi Credit)",
+        courseCode: "SIT-CA3",
+        type: "Project Milestone",
+        priority: "High",
+        dueDate: new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 10),
+        dueTime: "18:00",
+        estimatedHours: 2,
+        progress: 50,
+        notes: "Welcome to CampusPulse at SIT Nagpur! Explore the coursework manager and submit lab deliverables.",
+        subtasks: [
+          { id: "1", title: "Complete profile registration", completed: true },
+          { id: "2", title: "Review Continuous Assessment CA3 syllabus", completed: false },
+          { id: "3", title: "Connect MongoDB Compass database", completed: false }
+        ],
+        done: false,
+        createdAt: new Date()
+      }
+    ];
+
+    if (isMongoConnected && db) {
+      await db.collection("todos").insertMany(starterTasks);
+    } else {
+      const tasks = readLocalFile(todosFilePath, initialAcademicTodos);
+      starterTasks.forEach(st => tasks.unshift({ ...st, _id: new ObjectId().toString() }));
+      writeLocalFile(todosFilePath, tasks);
+    }
+
+    const token = `sit_token_${Date.now()}_${savedUserId}`;
+    const userSafe = { ...newUser, _id: savedUserId };
+    delete userSafe.password;
+
+    res.status(201).json({
+      success: true,
+      message: "Registration successful!",
+      user: userSafe,
+      token
+    });
+  } catch (error) {
+    console.error("Register error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/auth/login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { emailOrPrn, password } = req.body;
+
+    if (!emailOrPrn || !password) {
+      return res.status(400).json({ error: "Please provide Email/PRN and password" });
+    }
+
+    const query = emailOrPrn.trim().toLowerCase();
+
+    let user = null;
+    if (isMongoConnected && db) {
+      user = await db.collection("users").findOne({
+        $or: [
+          { email: query },
+          { prn: emailOrPrn.trim() }
+        ]
+      });
+    } else {
+      const users = readLocalFile(usersFilePath, defaultUsers);
+      user = users.find(u => 
+        u.email.toLowerCase() === query || 
+        (u.prn && u.prn.toLowerCase() === query)
+      );
+    }
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: "Invalid Email/PRN or password. Please try again." });
+    }
+
+    const token = `sit_token_${Date.now()}_${user._id}`;
+    const userSafe = { ...user };
+    delete userSafe.password;
+
+    res.json({
+      success: true,
+      message: "Login successful! Welcome to SIT Nagpur CampusPulse.",
+      user: userSafe,
+      token
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/auth/me
+app.get('/api/auth/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+    const parts = token.split("_");
+    const userId = parts[parts.length - 1];
+
+    let user = null;
+    if (isMongoConnected && db) {
+      try {
+        user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+      } catch (e) {
+        user = await db.collection("users").findOne({ _id: userId });
+      }
+    } else {
+      const users = readLocalFile(usersFilePath, defaultUsers);
+      user = users.find(u => String(u._id) === String(userId));
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: "User session expired" });
+    }
+
+    const userSafe = { ...user };
+    delete userSafe.password;
+    res.json(userSafe);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// -------------------------------------------------------------
 // Todos / Academic Tasks Routes
 // -------------------------------------------------------------
 
 // GET /getall and GET /api/tasks
 const getAllTasksHandler = async (req, res) => {
   try {
-    const { search, filter, priority, subject, sort } = req.query;
+    const { search, filter, priority, subject, sort, userId } = req.query;
 
     let tasks = [];
     if (isMongoConnected && db) {
-      tasks = await db.collection("todos").find().sort({ createdAt: -1 }).toArray();
+      const findQuery = userId ? { $or: [{ userId: userId }, { userId: { $exists: false } }] } : {};
+      tasks = await db.collection("todos").find(findQuery).sort({ createdAt: -1 }).toArray();
     } else {
       tasks = readLocalFile(todosFilePath, initialAcademicTodos);
+      if (userId) {
+        tasks = tasks.filter(t => !t.userId || String(t.userId) === String(userId));
+      }
     }
 
     // Filter by Done/Pending status
@@ -307,7 +524,8 @@ const createTaskHandler = async (req, res) => {
       estimatedHours,
       notes,
       subtasks,
-      progress
+      progress,
+      userId
     } = req.body;
 
     if (!title || title.trim() === "") {
@@ -315,9 +533,10 @@ const createTaskHandler = async (req, res) => {
     }
 
     const newTask = {
+      userId: userId || "",
       title: title.trim(),
       subject: subject || "General Academic",
-      courseCode: courseCode || "GEN101",
+      courseCode: courseCode || "SIT101",
       type: type || "Assignment",
       priority: priority || "Medium",
       dueDate: dueDate || "",
@@ -384,7 +603,6 @@ const updateTaskHandler = async (req, res) => {
     if (progress !== undefined) changes.progress = Number(progress);
     if (estimatedHours !== undefined) changes.estimatedHours = Number(estimatedHours);
 
-    // If marked done, automatically set progress to 100%
     if (done === true) {
       changes.progress = 100;
     }
@@ -417,7 +635,7 @@ const updateTaskHandler = async (req, res) => {
 app.put("/update/:id", updateTaskHandler);
 app.put("/api/tasks/:id", updateTaskHandler);
 
-// POST /api/tasks/:id/toggle (quick toggle checkbox)
+// POST /api/tasks/:id/toggle
 app.post("/api/tasks/:id/toggle", async (req, res) => {
   try {
     const id = req.params.id;
@@ -484,7 +702,7 @@ const deleteTaskHandler = async (req, res) => {
 app.delete("/delete/:id", deleteTaskHandler);
 app.delete("/api/tasks/:id", deleteTaskHandler);
 
-// POST /api/tasks/seed (reset & seed realistic academic demo coursework)
+// POST /api/tasks/seed
 app.post("/api/tasks/seed", async (req, res) => {
   try {
     if (isMongoConnected && db) {
@@ -493,20 +711,25 @@ app.post("/api/tasks/seed", async (req, res) => {
     } else {
       writeLocalFile(todosFilePath, initialAcademicTodos);
     }
-    res.json({ success: true, message: "Sample academic tasks successfully re-seeded!", count: initialAcademicTodos.length });
+    res.json({ success: true, message: "SIT Nagpur academic coursework re-seeded successfully!", count: initialAcademicTodos.length });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// GET /api/stats (comprehensive dashboard statistics)
+// GET /api/stats
 app.get("/api/stats", async (req, res) => {
   try {
+    const { userId } = req.query;
     let tasks = [];
     if (isMongoConnected && db) {
-      tasks = await db.collection("todos").find().toArray();
+      const q = userId ? { $or: [{ userId: userId }, { userId: { $exists: false } }] } : {};
+      tasks = await db.collection("todos").find(q).toArray();
     } else {
       tasks = readLocalFile(todosFilePath, initialAcademicTodos);
+      if (userId) {
+        tasks = tasks.filter(t => !t.userId || String(t.userId) === String(userId));
+      }
     }
 
     const total = tasks.length;
@@ -522,7 +745,6 @@ app.get("/api/stats", async (req, res) => {
     const dueToday = tasks.filter(t => !t.done && t.dueDate === todayStr).length;
     const overdue = tasks.filter(t => !t.done && t.dueDate && t.dueDate < todayStr).length;
 
-    // Subjects breakdown
     const subjectMap = {};
     tasks.forEach(t => {
       const s = t.subject || "General";
@@ -586,6 +808,7 @@ const postContactHandler = async (req, res) => {
       category: category || "General Query",
       subject: subject || "Academic Inquiry",
       message: message.trim(),
+      college: "Symbiosis Institute of Technology (SIT), Nagpur",
       status: "Pending",
       createdAt: new Date()
     };
@@ -645,7 +868,7 @@ app.delete("/api/messages/:id", deleteMessageHandler);
 initDatabase().then(() => {
   app.listen(PORT, () => {
     console.log(`====================================================`);
-    console.log(` CampusPulse Academic Server running on port ${PORT}`);
+    console.log(` CampusPulse Server (SIT Nagpur) running on port ${PORT}`);
     console.log(` Mode: ${isMongoConnected ? 'MongoDB (Compass Connected)' : 'Local File Store (Compass URI pending)'}`);
     console.log(`====================================================`);
   });

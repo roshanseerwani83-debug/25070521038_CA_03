@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { Send, CheckCircle2, AlertCircle, HelpCircle, Mail, User, BookOpen } from 'lucide-react';
 import API from './api';
 
-const Contact = () => {
-  const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState('');
-  const [email, setEmail] = useState('');
+const Contact = ({ currentUser }) => {
+  const [name, setName] = useState(currentUser?.name || '');
+  const [rollNo, setRollNo] = useState(currentUser?.prn || '');
+  const [email, setEmail] = useState(currentUser?.email || '');
   const [subject, setSubject] = useState('Full-Stack Web Dev (Flexi Credit)');
   const [category, setCategory] = useState('Assignment Doubt');
   const [message, setMessage] = useState('');
@@ -106,7 +106,7 @@ const Contact = () => {
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
-                  placeholder="e.g. roshan@iiitn.ac.in"
+                  placeholder="e.g. roshan@sitnagpur.siu.edu.in"
                   required 
                 />
               </div>
@@ -191,7 +191,7 @@ const Contact = () => {
             </h4>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
               Department of Computer Science & Engineering<br />
-              <strong>Indian Institute of Information Technology, Nagpur</strong><br />
+              <strong>Symbiosis Institute of Technology (SIT), Nagpur</strong><br />
               Flexi Credit Course: Full-Stack Web Development
             </p>
             <div style={{ marginTop: '16px' }}>

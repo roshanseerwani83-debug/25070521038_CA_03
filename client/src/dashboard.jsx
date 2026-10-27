@@ -12,11 +12,13 @@ import {
   RotateCcw, 
   ArrowRight,
   Sparkles,
-  Download
+  Download,
+  LogIn,
+  GraduationCap
 } from 'lucide-react';
 import API from './api';
 
-const Dashboard = () => {
+const Dashboard = ({ currentUser, onOpenAuth }) => {
   const [todos, setTodos] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -37,24 +39,25 @@ const Dashboard = () => {
 
   const loadData = () => {
     setLoading(true);
+    const userId = currentUser?._id || '';
     Promise.all([
-      fetch(`${API}/getall`).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/api/stats`).then((r) => r.json()).catch(() => ({}))
+      fetch(`${API}/getall?userId=${userId}`).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/api/stats?userId=${userId}`).then((r) => r.json()).catch(() => ({}))
     ]).then(([taskList, statsData]) => {
       setTodos(taskList || []);
       if (statsData && statsData.total !== undefined) {
         setStats(statsData);
       } else {
-        const total = taskList.length;
-        const done = taskList.filter((t) => t.done).length;
+        const total = (taskList || []).length;
+        const done = (taskList || []).filter((t) => t.done).length;
         setStats({
           total,
           done,
           pending: total - done,
-          urgent: taskList.filter((t) => !t.done && t.priority === 'Urgent').length,
-          high: taskList.filter((t) => !t.done && t.priority === 'High').length,
+          urgent: (taskList || []).filter((t) => !t.done && t.priority === 'Urgent').length,
+          high: (taskList || []).filter((t) => !t.done && t.priority === 'High').length,
           percent: total === 0 ? 0 : Math.round((done / total) * 100),
-          dueToday: taskList.filter((t) => !t.done && t.dueDate === new Date().toISOString().slice(0, 10)).length,
+          dueToday: (taskList || []).filter((t) => !t.done && t.dueDate === new Date().toISOString().slice(0, 10)).length,
           overdue: 0,
           subjects: {}
         });
@@ -65,7 +68,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentUser]);
 
   // Pomodoro countdown effect
   useEffect(() => {
@@ -94,7 +97,7 @@ const Dashboard = () => {
   };
 
   const handleSeedTasks = async () => {
-    if (!window.confirm('Reset and load initial sample coursework tasks?')) return;
+    if (!window.confirm('Reset and load initial sample coursework tasks for SIT Nagpur?')) return;
     try {
       await fetch(`${API}/api/tasks/seed`, { method: 'POST' });
       loadData();
@@ -108,7 +111,7 @@ const Dashboard = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `campuspulse_tasks_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `SIT_Nagpur_Coursework_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
   };
 
@@ -127,16 +130,49 @@ const Dashboard = () => {
 
   return (
     <div className="page-wrapper">
+      {/* Student Profile Banner */}
+      <div className="card" style={{ marginBottom: '24px', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.07), rgba(168, 85, 247, 0.05))', border: '1px solid var(--border-light)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div className="brand-icon" style={{ width: '44px', height: '44px', borderRadius: '50%' }}>
+              <GraduationCap size={24} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 800 }}>
+                  {currentUser ? `Welcome, ${currentUser.name}` : 'Welcome, Guest Student'}
+                </h2>
+                <span className="brand-tag">SIT NAGPUR</span>
+                {currentUser?.prn && (
+                  <span className="course-chip">PRN: {currentUser.prn}</span>
+                )}
+              </div>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                {currentUser ? `${currentUser.branch || 'CSE'} · ${currentUser.year || '3rd Year'}` : 'Sign in to sync coursework to your personal student PRN'} · Symbiosis Institute of Technology
+              </p>
+            </div>
+          </div>
+
+          <div>
+            {!currentUser && (
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => onOpenAuth('login')}>
+                <LogIn size={14} /> Student Sign In / Register
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="page-header">
         <div>
           <h1 className="page-title">Academic Dashboard</h1>
           <p className="page-subtitle">
-            Welcome back! Today is {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} · Continuous Assessment 3 (CA3)
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button type="button" className="btn btn-secondary btn-sm" onClick={handleSeedTasks} title="Load sample academic tasks">
-            <Sparkles size={14} /> Seed Demo Data
+            <Sparkles size={14} /> Seed SIT Tasks
           </button>
           <button type="button" className="btn btn-secondary btn-sm" onClick={exportToJson} title="Export coursework as JSON">
             <Download size={14} /> Export Backup
@@ -210,7 +246,7 @@ const Dashboard = () => {
             <span style={{ fontWeight: 700, fontSize: '16px' }}>Study Focus Timer (Pomodoro)</span>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-            25-minute deep-work interval to boost your coursework retention and focus.
+            25-minute deep-work interval to boost your SIT Nagpur assignment retention and focus.
           </p>
         </div>
 
@@ -288,10 +324,10 @@ const Dashboard = () => {
         {/* Subjects & Quick Action Hub */}
         <div className="card">
           <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BookOpen size={18} style={{ color: 'var(--primary)' }} /> Coursework Subjects
+            <BookOpen size={18} style={{ color: 'var(--primary)' }} /> Coursework Modules (SIT Nagpur)
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-            Active subjects and modules currently tracked under Continuous Assessment (CA3):
+            Active subjects and modules tracked under Continuous Assessment (CA3):
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
@@ -316,7 +352,7 @@ const Dashboard = () => {
               Manage Coursework & Assignments <ArrowRight size={16} />
             </Link>
             <Link to="/contact" className="btn btn-secondary" style={{ width: '100%' }}>
-              Submit Query to Helpdesk
+              Submit Query to SIT Helpdesk
             </Link>
           </div>
         </div>

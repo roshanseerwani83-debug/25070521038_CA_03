@@ -32,7 +32,7 @@ const About = () => {
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: 800 }}>CampusPulse: Academic Coursework & Productivity Workspace</h2>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Designed for Indian Institute of Information Technology, Nagpur (IIITN)
+              Designed for Symbiosis Institute of Technology (SIT), Nagpur
             </p>
           </div>
         </div>

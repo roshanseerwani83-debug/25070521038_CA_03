@@ -9,11 +9,15 @@ import {
   Info, 
   Moon, 
   Sun, 
-  Database 
+  Database,
+  LogIn,
+  UserPlus,
+  LogOut,
+  User
 } from 'lucide-react';
 import API from './api';
 
-const Nav = ({ theme, toggleTheme }) => {
+const Nav = ({ theme, toggleTheme, currentUser, onOpenAuth, onLogout }) => {
   const [dbStatus, setDbStatus] = useState({
     isMongoConnected: false,
     storageMode: 'checking'
@@ -30,9 +34,9 @@ const Nav = ({ theme, toggleTheme }) => {
 
   const handleStatusClick = () => {
     if (dbStatus.isMongoConnected) {
-      alert(`MongoDB Compass is actively connected!\nDatabase: ${dbStatus.databaseName}\nURI: ${dbStatus.mongoUri}`);
+      alert(`MongoDB Compass is actively connected!\nCollege: Symbiosis Institute of Technology (SIT), Nagpur\nDatabase: ${dbStatus.databaseName}\nURI: ${dbStatus.mongoUri}`);
     } else {
-      alert(`Currently running with persistent local database.\nTo connect MongoDB Compass:\n1. Open server/.env\n2. Set MONGODB_URI=mongodb://localhost:27017 (or your Atlas link)\n3. Restart the server!`);
+      alert(`Currently running with persistent local database for SIT Nagpur.\nTo connect MongoDB Compass:\n1. Open server/.env\n2. Set MONGODB_URI=mongodb://localhost:27017\n3. Restart server!`);
     }
   };
 
@@ -44,7 +48,7 @@ const Nav = ({ theme, toggleTheme }) => {
             <GraduationCap size={20} />
           </div>
           <span>CampusPulse</span>
-          <span className="brand-tag">IIITN CA3</span>
+          <span className="brand-tag">SIT NAGPUR</span>
         </NavLink>
 
         <div className="nav-links">
@@ -71,17 +75,19 @@ const Nav = ({ theme, toggleTheme }) => {
         </div>
 
         <div className="nav-actions">
+          {/* DB Indicator */}
           <button 
             type="button" 
             className="status-badge" 
             onClick={handleStatusClick} 
-            title="Click to view database connection details"
+            title="Database Status (SIT Nagpur)"
           >
             <Database size={13} />
             <span className={`status-dot ${dbStatus.isMongoConnected ? 'online' : 'offline'}`} />
             <span>{dbStatus.isMongoConnected ? 'Compass DB' : 'Local DB'}</span>
           </button>
 
+          {/* Theme Toggle */}
           <button 
             type="button" 
             className="theme-toggle-btn" 
@@ -90,6 +96,52 @@ const Nav = ({ theme, toggleTheme }) => {
           >
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
+
+          {/* Auth Controls */}
+          {currentUser ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div 
+                className="user-pill" 
+                title={`${currentUser.name} (${currentUser.branch || 'SIT Nagpur'})`}
+              >
+                <div className="user-avatar">
+                  {currentUser.name ? currentUser.name[0].toUpperCase() : 'S'}
+                </div>
+                <div className="user-details">
+                  <span className="user-name">{currentUser.name.split(' ')[0]}</span>
+                  {currentUser.prn && <span className="user-prn">{currentUser.prn}</span>}
+                </div>
+              </div>
+
+              <button 
+                type="button" 
+                className="btn btn-secondary btn-sm" 
+                onClick={onLogout} 
+                title="Sign Out"
+                style={{ padding: '6px 10px' }}
+              >
+                <LogOut size={14} />
+                <span className="hide-mobile">Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => onOpenAuth('login')}
+              >
+                <LogIn size={14} /> Sign In
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary btn-sm" 
+                onClick={() => onOpenAuth('register')}
+              >
+                <UserPlus size={14} /> Register
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
